@@ -1,4 +1,4 @@
-import * as anchor from "@coral-xyz/anchor";
+import anchor from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram, Keypair } from "@solana/web3.js";
 import dotenv from "dotenv";
 import idl from "../../shared/autopay_bounties_idl.json" with { type: "json" };
@@ -21,10 +21,11 @@ const provider = new anchor.AnchorProvider(connection, wallet, {
   commitment: "confirmed"
 });
 
-const program = new anchor.Program(idl, new PublicKey(PROGRAM_ID), provider);
+const program = new anchor.Program({ ...idl, address: PROGRAM_ID }, provider);
 
 export async function findOpenBounty(repo, issueNumber) {
   const all = await program.account.bounty.all();
+  console.log("all",all)
   return all.find((entry) => {
     return (
       entry.account.repo === repo &&
@@ -34,14 +35,17 @@ export async function findOpenBounty(repo, issueNumber) {
   });
 }
 
-export async function releaseBountyPayment(bountyPubkey, issueNumber, developerWallet) {
-  const dev = new PublicKey(developerWallet);
+export async function releaseBountyPayment(bountyEscrowPda, issueNumber, recipientWalletAddress) {
+  const recipientWallet = new PublicKey(recipientWalletAddress);
+  console.log("authority.publicKey",authority.publicKey);
+  console.log("bounty escrow PDA", bountyEscrowPda);
+  console.log("recipient wallet", recipientWallet.toBase58());
   const sig = await program.methods
-    .releasePayment(new anchor.BN(issueNumber), dev)
+    .releasePayment(new anchor.BN(issueNumber), recipientWallet)
     .accounts({
       authority: authority.publicKey,
-      bounty: bountyPubkey,
-      developer: dev,
+      bounty: bountyEscrowPda,
+      developer: recipientWallet,
       systemProgram: SystemProgram.programId
     })
     .rpc();

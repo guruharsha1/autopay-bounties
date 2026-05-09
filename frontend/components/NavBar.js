@@ -1,9 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export default function NavBar() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <header className="border-b border-slate-800">
       <div className="mx-auto flex max-w-5xl items-center justify-between p-4">
@@ -18,7 +25,11 @@ export default function NavBar() {
             Profile
           </Link>
         </div>
-        <WalletMultiButton />
+        {mounted ? (
+          <WalletMultiButton />
+        ) : (
+          <div className="h-12 w-36 rounded bg-slate-800" aria-hidden="true" />
+        )}
       </div>
     </header>
   );

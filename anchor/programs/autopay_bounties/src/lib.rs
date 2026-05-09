@@ -53,29 +53,17 @@ pub mod autopay_bounties {
             AutoPayError::IssueNumberMismatch
         );
 
-        let bounty = &ctx.accounts.bounty;
-        let creator = bounty.creator;
-        let bump = bounty.bump;
-        let amount = bounty.amount;
+        let amount = ctx.accounts.bounty.amount;
+        let bounty_account = ctx.accounts.bounty.to_account_info();
+        let developer_account = ctx.accounts.developer.to_account_info();
 
-        let seeds = &[
-            b"bounty",
-            creator.as_ref(),
-            &issue_number.to_le_bytes(),
-            &[bump],
-        ];
-        let signer = &[&seeds[..]];
-
-        let cpi_accounts = Transfer {
-            from: ctx.accounts.bounty.to_account_info(),
-            to: ctx.accounts.developer.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.system_program.to_account_info(),
-            cpi_accounts,
-            signer,
+        require!(
+            bounty_account.lamports() >= amount,
+            AutoPayError::InsufficientEscrowBalance
         );
-        transfer(cpi_ctx, amount)?;
+
+        **bounty_account.try_borrow_mut_lamports()? -= amount;
+        **developer_account.try_borrow_mut_lamports()? += amount;
 
         ctx.accounts.bounty.is_paid = true;
         Ok(())
@@ -143,4 +131,6 @@ pub enum AutoPayError {
     DeveloperMismatch,
     #[msg("Issue number does not match bounty.")]
     IssueNumberMismatch,
+    #[msg("Bounty escrow does not have enough lamports.")]
+    InsufficientEscrowBalance,
 }

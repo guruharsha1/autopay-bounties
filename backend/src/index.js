@@ -81,15 +81,17 @@ app.post("/webhook", async (req, res) => {
     const repo = payload.repository?.full_name;
     const issueNumber = extractIssueNumber(payload.pull_request?.body || "");
     const githubUsername = payload.pull_request?.user?.login;
-
+    console.log("repo",repo);
+    console.log("issuenumber",issueNumber);
+    console.log("guthub",githubUsername)
     if (!repo || !issueNumber || !githubUsername) {
       return res.status(400).json({
         error: "Missing repo, issue number from PR body, or github username"
       });
     }
 
-    const developerWallet = getWalletForGithubUser(githubUsername);
-    if (!developerWallet) {
+    const recipientWalletAddress = getWalletForGithubUser(githubUsername);
+    if (!recipientWalletAddress) {
       return res.status(404).json({
         error: `No wallet mapping found for GitHub user ${githubUsername}`
       });
@@ -105,7 +107,7 @@ app.post("/webhook", async (req, res) => {
     const signature = await releaseBountyPayment(
       bounty.publicKey,
       issueNumber,
-      developerWallet
+      recipientWalletAddress
     );
 
     return res.json({
@@ -113,7 +115,7 @@ app.post("/webhook", async (req, res) => {
       tx: signature,
       repo,
       issueNumber,
-      paidTo: developerWallet
+      paidTo: recipientWalletAddress
     });
   } catch (error) {
     console.error("Webhook error:", error);
