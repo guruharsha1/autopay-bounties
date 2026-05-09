@@ -19,7 +19,7 @@ export default function ProfileCard() {
     }
     try {
       setStatus("Registering...");
-      const res = await fetch(`${apiBase}/register`, {
+      const res = await fetch(`${apiBase}register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
