@@ -1,0 +1,239 @@
+{
+  "address": "BTrpp9nc2eP12y1SHSAWWyHNKUPFffR5EcSkcFVNJbRv",
+  "metadata": {
+    "name": "autopay_bounties",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "AutoPay Bounties program"
+  },
+  "instructions": [
+    {
+      "name": "initialize_bounty",
+      "discriminator": [
+        150,
+        37,
+        249,
+        246,
+        85,
+        164,
+        253,
+        229
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bounty",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "arg",
+                "path": "issue_number"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "repo",
+          "type": "string"
+        },
+        {
+          "name": "issue_number",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "release_payment",
+      "discriminator": [
+        24,
+        34,
+        191,
+        86,
+        145,
+        160,
+        183,
+        233
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "bounty"
+          ]
+        },
+        {
+          "name": "bounty",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "bounty.creator",
+                "account": "Bounty"
+              },
+              {
+                "kind": "arg",
+                "path": "issue_number"
+              }
+            ]
+          }
+        },
+        {
+          "name": "developer",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "issue_number",
+          "type": "u64"
+        },
+        {
+          "name": "developer_wallet",
+          "type": "pubkey"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Bounty",
+      "discriminator": [
+        237,
+        16,
+        105,
+        198,
+        19,
+        69,
+        242,
+        234
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "RepoTooLong",
+      "msg": "Repository name is too long."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmount",
+      "msg": "Amount must be greater than zero."
+    },
+    {
+      "code": 6002,
+      "name": "AlreadyPaid",
+      "msg": "Bounty has already been paid."
+    },
+    {
+      "code": 6003,
+      "name": "Unauthorized",
+      "msg": "Caller is not the bounty authority."
+    },
+    {
+      "code": 6004,
+      "name": "DeveloperMismatch",
+      "msg": "Developer account does not match requested wallet."
+    },
+    {
+      "code": 6005,
+      "name": "IssueNumberMismatch",
+      "msg": "Issue number does not match bounty."
+    },
+    {
+      "code": 6006,
+      "name": "InsufficientEscrowBalance",
+      "msg": "Bounty escrow does not have enough lamports."
+    }
+  ],
+  "types": [
+    {
+      "name": "Bounty",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "repo",
+            "type": "string"
+          },
+          {
+            "name": "issue_number",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "is_paid",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

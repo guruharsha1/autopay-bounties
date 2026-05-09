@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import idl from "../../anchor/target/idl/autopay_bounties.json";
+import idl from "./idl/autopay_bounties_idl.json";
 import { getProgramId } from "@/lib/networkConfig";
 
 const configuredProgramId = getProgramId();
