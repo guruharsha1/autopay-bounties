@@ -5,8 +5,14 @@ import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import idl from "../../anchor/target/idl/autopay_bounties.json";
+import { getProgramId } from "@/lib/networkConfig";
 
-const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID);
+const configuredProgramId = getProgramId();
+if (!configuredProgramId) {
+  throw new Error("Missing frontend program ID for selected Solana cluster");
+}
+
+const PROGRAM_ID = new PublicKey(configuredProgramId);
 
 export function useAnchorProgram() {
   const { connection } = useConnection();
